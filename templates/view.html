@@ -18,16 +18,16 @@
     <tbody>
         {% for song in playlist %}
             <tr>
-                <th scope="row">{{ loop.index }}</th>
-                <td>{{ song.name }}</td>
-                <td>{{ song.artists }}</td>
-                <td>{{ song.duration | time }}</td>
+                <th scope="row" class="col-md-1">{{ loop.index }}</th>
+                <td class="col-md-3">{{ song.name }}</td>
+                <td class="col-md-2">{{ song.artists }}</td>
+                <td class="col-md-1">{{ song.duration | time }}</td>
                 {% if song.url != None %}
                     <form action="{{ song.url }}">
-                        <td><button type="submit" class="btn btn-success">Listen</button></td>
+                        <td class="col-md-1"><button type="submit" class="btn btn-success">Listen</button></td>
                     </form>
                 {% else %}
-                    <td><button type="button" class="btn btn-outline-success disabled">Listen</button></td>
+                    <td class="col-md-1"><button type="button" class="btn btn-outline-success disabled">Listen</button></td>
                 {% endif %}
             </tr>
         {% endfor %}

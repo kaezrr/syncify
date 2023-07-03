@@ -12,7 +12,19 @@ Session(app)
 
 @app.route('/')
 def index():
-    return redirect('/playlists')
+    sp = get_spotify_user()  
+    if not sp:
+        flash('Spotify account authorization needed')
+        return redirect('/auth')
+    
+    playlists = []
+
+    for list in sp.current_user_playlists()['items']:
+        playlist = {'id': list['id'], 'name': list['name'],'description': list['description'] 
+                    ,'image': sp.playlist_cover_image(list['id'])[0]['url'], 'count': list['tracks']['total']}
+        playlists.append(playlist)
+
+    return render_template('index.html', playlists=playlists)
 
 
 @app.route('/authspotify')
@@ -28,24 +40,9 @@ def redirectPage():
     session.clear
     code = request.args.get('code')
     session['spot_token_info'] = sp_oauth.get_access_token(code)
+    flash('Welcome to Spotube!')
     return redirect('/')
-
-
-@app.route('/playlists')
-def showPlaylists():
-    sp = get_spotify_user()  
-    if not sp:
-        flash('Spotify account authorization needed')
-        return redirect('/auth')
     
-    playlists = []
-
-    for list in sp.current_user_playlists()['items']:
-        playlist = {'id': list['id'], 'name': list['name'],'description': list['description'] 
-                    ,'image': sp.playlist_cover_image(list['id'])[0]['url'], 'count': list['tracks']['total']}
-        playlists.append(playlist)
-
-    return render_template('playlists.html', playlists=playlists)
 
 @app.route('/auth')
 def auth():
@@ -57,6 +54,7 @@ def auth():
 def view():
     sp = get_spotify_user()
     if not sp:
+        flash('Spotify account authorization needed')
         return redirect('/auth')
     
     playlist_id =  request.args.get('playlist_id')
@@ -84,6 +82,7 @@ def view():
 def delete():
     sp = get_spotify_user()
     if not sp:
+        flash('Spotify account authorization needed')
         return redirect('/auth')
     
     playlist_id = request.args.get('playlist_id')
