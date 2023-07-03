@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    View {{ name }}
+{% endblock %}
+
+{% block main %}
+<table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Artists</th>
+        <th scope="col">Duration</th>
+        <th scope="col">Preview</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for song in playlist %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ song.name }}</td>
+                <td>{{ song.artists }}</td>
+                <td>{{ song.duration | time }}</td>
+                {% if song.url != None %}
+                    <form action="{{ song.url }}">
+                        <td><button type="submit" class="btn btn-success">Listen</button></td>
+                    </form>
+                {% else %}
+                    <td><button type="button" class="btn btn-danger disabled">Listen</button></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

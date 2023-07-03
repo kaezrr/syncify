@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Playlists
+{% endblock %}
+
+{% block main %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for playlist in playlists %}
+    <div class="col">
+        <div class="card border-dark mb-3" style="max-width: 540px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{{ playlist.image }}" class="img-fluid rounded-start card-img-top" alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ playlist.name }}</h5>
+                        <p class="card-text">Tracks: {{ playlist.count }}</p>
+                        <form method="get">
+                            <input type="hidden" name="name" value="{{ playlist.name }}">
+                            <button class="btn btn-success" name="playlist_id" type="submit" formaction="/convert" value="{{ playlist.id }}">Convert</button>
+                            <button class="btn btn-primary" name="playlist_id" type="submit" formaction="/view" value="{{ playlist.id }}">View</button>
+                            <button class="btn btn-danger" name="playlist_id" type="submit" formaction="/delete" value="{{ playlist.id }}">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+{% endblock %}

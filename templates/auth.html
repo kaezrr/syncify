@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Authorize
+{% endblock %}
+
+{% block main %}
+<form>
+    <div class="mb-3">
+        <button class="btn btn-success mx-auto w-auto" name="spotify" formaction="/authspotify" type="submit">Connect to Spotify</button>
+        <button class="btn btn-danger mx-auto w-auto" name="Youtube" formaction="/authyoutube" type="submit">Connect to Youtube</button>
+    </div>
+</form>
+{% endblock %}
