@@ -16,6 +16,8 @@
       </tr>
     </thead>
     <tbody>
+        <h5>{{ name }}</th>
+        <h5 class="text-muted">Playtime {{ time | time }}</th>
         {% for song in playlist %}
             <tr>
                 <th scope="row" class="col-md-1">{{ loop.index }}</th>

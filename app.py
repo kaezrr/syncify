@@ -10,6 +10,15 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 
+@app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+
 @app.route('/')
 def index():
     sp = get_spotify_user()  
@@ -61,13 +70,13 @@ def view():
     name = request.args.get('name')
     req = sp.playlist_items(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists(name))')['items']
     playlist = []
+    time = 0
     for item in req:
         track = item.get('track')
         if not track:
             continue
-
+        time += track['duration_ms']
         song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
-
         artists = []
         for artist in track['artists']:
             artists.append(artist['name'])
@@ -75,7 +84,7 @@ def view():
         song['artists'] = ', '.join(artists)
         playlist.append(song)
 
-    return render_template("view.html", playlist=playlist, name=name)
+    return render_template("view.html", playlist=playlist, name=name, time=time)
 
 
 @app.route('/delete')

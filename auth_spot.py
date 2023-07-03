@@ -6,13 +6,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+CLIENT_ID = os.getenv('SPOTIFY_ID')
+CLIENT_SECRET = os.getenv('SPOTIFY_SECRET')
 
 def time_form(ms):
     seconds, ms = divmod(ms, 1000)
     minutes, seconds = divmod(seconds, 60)
-    return f'{int(minutes):01d}:{int(seconds):02d}'
+    hours, minutes = divmod(minutes, 60)
+    if hours < 1:
+        return f'{int(minutes):01d}:{int(seconds):02d}'
+    else:
+        return f'{int(hours):1d}h {int(minutes):01d}m'
 
 
 def get_token():
