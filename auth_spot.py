@@ -16,7 +16,7 @@ def time_form(ms):
 
 
 def get_token():
-    token_info = session.get('token_info', None)
+    token_info = session.get('spot_token_info', None)
     if not token_info:
         raise 'exception'
     

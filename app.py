@@ -27,7 +27,7 @@ def redirectPage():
     sp_oauth = create_spotify_oauth()
     session.clear
     code = request.args.get('code')
-    session['token_info'] = sp_oauth.get_access_token(code)
+    session['spot_token_info'] = sp_oauth.get_access_token(code)
     return redirect('/')
 
 
@@ -35,7 +35,7 @@ def redirectPage():
 def showPlaylists():
     sp = get_spotify_user()  
     if not sp:
-        return redirect('/authspotify')
+        return redirect('/auth')
      
     playlists = []
 
@@ -48,13 +48,15 @@ def showPlaylists():
 
 @app.route('/auth')
 def auth():
-    return render_template('auth.html')
+    spot_auth = session.get('spot_token_info', None) != None
+    yt_auth = session.get('yt_token_info', None) != None
+    return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
 
 @app.route('/view')
 def view():
     sp = get_spotify_user()
     if not sp:
-        return redirect('/authspotify')
+        return redirect('/auth')
 
     playlist_id =  request.args.get('playlist_id')
     name = request.args.get('name')
@@ -81,7 +83,7 @@ def view():
 def delete():
     sp = get_spotify_user()
     if not sp:
-        return redirect('/authspotify')
+        return redirect('/auth')
     
     playlist_id = request.args.get('playlist_id')
     sp.current_user_unfollow_playlist(playlist_id=playlist_id)
