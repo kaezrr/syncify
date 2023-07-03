@@ -8,7 +8,7 @@ app.jinja_env.filters["time"] = time_form
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
+ #new comment
 
 @app.route('/')
 def index():
