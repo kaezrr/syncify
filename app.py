@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, render_template
+from flask import Flask, request, session, redirect, render_template, flash
 from flask_session import Session
 from auth_spot import time_form, create_spotify_oauth, get_spotify_user
 
@@ -35,8 +35,9 @@ def redirectPage():
 def showPlaylists():
     sp = get_spotify_user()  
     if not sp:
+        flash('Spotify account authorization needed')
         return redirect('/auth')
-     
+    
     playlists = []
 
     for list in sp.current_user_playlists()['items']:
@@ -57,7 +58,7 @@ def view():
     sp = get_spotify_user()
     if not sp:
         return redirect('/auth')
-
+    
     playlist_id =  request.args.get('playlist_id')
     name = request.args.get('name')
     req = sp.playlist_items(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists(name))')['items']
