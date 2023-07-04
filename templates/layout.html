@@ -26,7 +26,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     <ul class="navbar-nav me-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/">Playlists</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/spotify_playlists">Spotify playlists</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/youtube_playlists">YouTube playlists</a></li>
                     </ul>
                     <ul class="navbar-nav ms-auto mt-2">
                         <li class="nav-item"><a class="nav-link" href="/auth">Authorize</a></li>
@@ -37,7 +38,7 @@
 
         {% if get_flashed_messages() %}
             <header>
-                <div class="alert alert-danger mb-0 text-center" role="alert">
+                <div class="alert alert-primary mb-0 text-center" role="alert">
                     {{ get_flashed_messages() | join(" ") }}
                 </div>
             </header>

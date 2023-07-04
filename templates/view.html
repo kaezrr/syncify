@@ -17,13 +17,13 @@
     </thead>
     <tbody>
         <h5>{{ name }}</th>
-        <h5 class="text-muted">Playtime {{ time | time }}</th>
+        <h5 class="text-muted">Playtime {{ time | play_time }}</th>
         {% for song in playlist %}
             <tr>
                 <th scope="row" class="col-md-1">{{ loop.index }}</th>
                 <td class="col-md-3">{{ song.name }}</td>
                 <td class="col-md-2">{{ song.artists }}</td>
-                <td class="col-md-1">{{ song.duration | time }}</td>
+                <td class="col-md-1">{{ song.duration | track_time }}</td>
                 {% if song.url != None %}
                     <form action="{{ song.url }}">
                         <td class="col-md-1"><button type="submit" class="btn btn-success">Listen</button></td>

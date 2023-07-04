@@ -1,9 +1,10 @@
 from flask import Flask, request, session, redirect, render_template, flash
 from flask_session import Session
-from auth_spot import time_form, create_spotify_oauth, get_spotify_user
+from auth_spot import create_spotify_oauth, get_spotify_user, time_play, time_track
 
 app = Flask(__name__)
-app.jinja_env.filters["time"] = time_form
+app.jinja_env.filters["track_time"] = time_track
+app.jinja_env.filters["play_time"] = time_play
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -21,10 +22,14 @@ def after_request(response):
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/spotify_playlists')
+def sp_playlist():
     sp = get_spotify_user()  
     if not sp:
-        flash('Spotify account authorization needed')
-        return redirect('/auth')
+        flash('Spotify account authorization needed!')
+        return redirect('/')
     
     playlists = []
 
@@ -33,8 +38,7 @@ def index():
                     ,'image': sp.playlist_cover_image(list['id'])[0]['url'], 'count': list['tracks']['total']}
         playlists.append(playlist)
 
-    return render_template('index.html', playlists=playlists)
-
+    return render_template('playlist.html', playlists=playlists)
 
 @app.route('/authspotify')
 def authspotify():
@@ -46,10 +50,8 @@ def authspotify():
 @app.route('/redirect')
 def redirectPage():
     sp_oauth = create_spotify_oauth()
-    session.clear
     code = request.args.get('code')
     session['spot_token_info'] = sp_oauth.get_access_token(code)
-    flash('Welcome to Spotube!')
     return redirect('/')
     
 
@@ -97,6 +99,17 @@ def delete():
     playlist_id = request.args.get('playlist_id')
     sp.current_user_unfollow_playlist(playlist_id=playlist_id)
 
+    return redirect('/')
+
+@app.route('/disconnect')
+def disconnect():
+    dis = request.args.get('disconnect')
+    if dis == 'Spotify':
+        session['spot_token_info'] = None
+    elif dis == 'YouTube':
+        session['yt_token_info'] = None
+
+    flash(f'Successfully disconnected from {dis}!')
     return redirect('/')
 
 

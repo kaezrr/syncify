@@ -1,33 +1,18 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Playlists
+    Welcome
 {% endblock %}
 
 {% block main %}
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-    {% for playlist in playlists %}
-    <div class="col">
-        <div class="card border-dark mb-3" style="max-width: 540px;">
-            <div class="row g-0">
-                <div class="col-md-4">
-                    <img src="{{ playlist.image }}" class="img-fluid rounded-start card-img-top" alt="...">
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ playlist.name }}</h5>
-                        <p class="card-text">Tracks: {{ playlist.count }}</p>
-                        <form method="get">
-                            <input type="hidden" name="name" value="{{ playlist.name }}">
-                            <button class="btn btn-success" name="playlist_id" type="submit" formaction="/convert" value="{{ playlist.id }}">Convert</button>
-                            <button class="btn btn-primary" name="playlist_id" type="submit" formaction="/view" value="{{ playlist.id }}">View</button>
-                            <button class="btn btn-danger" name="playlist_id" type="submit" formaction="/delete" value="{{ playlist.id }}">Delete</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-    </div>
+    <main role="main" class="text-center">
+        <h1>Welcome to Spotube!</h1>
+        <p class="lead" style="padding-left: 25%; padding-right: 25%; padding-top: 1.5%; padding-bottom: 1%;">
+            Spotube is a web app that helps you convert your favourite Spotify playlists to YouTube playlists and vice versa.
+            To get started connect your spotify and youtube accounts to the application.
+        </p>
+        <p class="lead">
+        <a href="/auth" class="btn btn-lg btn-success">Connect your accounts</a>
+        </p>
+    </main>
 {% endblock %}
