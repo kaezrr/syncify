@@ -5,17 +5,17 @@
 {% endblock %}
 
 {% block main %}
-<form>
+<form method="post">
     <div class="mb-3">
         {% if spot_auth %}
         <button class="btn btn-success mx-auto w-auto" name="disconnect" formaction="/disconnect" value="Spotify">Disconnect from Spotify</button>
         {% else %}
-        <button class="btn btn-success mx-auto w-auto" name="spotify" formaction="/authspotify" type="submit">Connect to Spotify</button>
+        <button class="btn btn-success mx-auto w-auto" name="connect" formaction="/auth" type="submit" value="spotify">Connect to Spotify</button>
         {% endif %}
         {% if yt_auth %}
         <button class="btn btn-danger mx-auto w-auto" name="disconnect" formaction="/disconnect" value="YouTube">Disconnect from YouTube</button>
         {% else %}
-        <button class="btn btn-danger mx-auto w-auto" name="Youtube" formaction="/authyoutube" type="submit">Connect to YouTube</button>
+        <button class="btn btn-danger mx-auto w-auto" name="connect" formaction="/auth" type="submit" value ="youtube">Connect to YouTube</button>
         {% endif %}
     </div>
 </form>

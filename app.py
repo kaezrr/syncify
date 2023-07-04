@@ -41,20 +41,26 @@ def sp_playlist():
 
     return render_template('playlist.html', playlists=playlists)
 
-@app.route('/authspotify')
-def authspotify():
-    sp_oauth = create_spotify_oauth()
-    auth_url = sp_oauth.get_authorize_url()
-    
-    return redirect(auth_url)
+@app.route('/auth', methods=['POST', 'GET'])
+def authorize():
+    if request.method == 'POST':
+        service = request.form.get('connect')
+        if service == 'spotify':
+            sp_oauth = create_spotify_oauth()
+            auth_url = sp_oauth.get_authorize_url()
+            
+            return redirect(auth_url)
+        elif service == 'youtube':
+            yt_oauth = youtube_oauth()
+            auth_url = yt_oauth.authorization_url()
+            
+            return redirect(auth_url[0])
+    else:
+        spot_auth = session.get('spot_token_info', None) != None
+        yt_auth = session.get('yt_token_info', None) != None
 
+        return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
 
-@app.route('/authyoutube')
-def authyoutube():
-    yt_oauth = youtube_oauth()
-    auth_url = yt_oauth.authorization_url()
-    
-    return redirect(auth_url[0])
 
 
 @app.route('/redirectspotify')
@@ -71,24 +77,18 @@ def redirectSpotify():
 def redirectYoutube():
     yt_oauth = youtube_oauth()
     yt_oauth.fetch_token(code=request.args.get('code'))
-    session['yt_token_info'] = yt_oauth.credentials.to_json()
+    session['yt_token_info'] = yt_oauth.credentials
 
-    flash(f'Successfully connected to Youtube as username!')
+    flash(f'Successfully connected to YouTube as username!')
     return redirect('/')
     
-
-@app.route('/auth')
-def auth():
-    spot_auth = session.get('spot_token_info', None) != None
-    yt_auth = session.get('yt_token_info', None) != None
-    return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
 
 @app.route('/view')
 def view():
     sp = get_spotify_user()
     if not sp:
         flash('Spotify account authorization needed')
-        return redirect('/auth')
+        return redirect('/')
     
     playlist_id =  request.args.get('playlist_id')
     name = request.args.get('name')
@@ -123,9 +123,9 @@ def delete():
 
     return redirect('/')
 
-@app.route('/disconnect')
+@app.route('/disconnect', methods=['POST', 'GET'])
 def disconnect():
-    dis = request.args.get('disconnect')
+    dis = request.form.get('disconnect')
     if dis == 'Spotify':
         session['spot_token_info'] = None
     elif dis == 'YouTube':
