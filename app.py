@@ -1,6 +1,6 @@
 from flask import Flask, request, session, redirect, render_template, flash
 from flask_session import Session
-from auth_spot import create_spotify_oauth, get_spotify_user
+from auth_spot import create_spotify_oauth, get_spotify_user, check_spot
 from auth_yt import youtube_oauth, check_yt
 from helpers import time_play, time_track
 
@@ -28,10 +28,11 @@ def index():
 
 @app.route('/spotify_playlists')
 def sp_playlist():
+    check = check_spot()
+    if check:
+        return check
+    
     sp = get_spotify_user()  
-    if not sp:
-        flash('Spotify account authorization needed!')
-        return redirect('/')
     
     playlists = []
 
@@ -86,10 +87,7 @@ def redirectYoutube():
 
 @app.route('/view')
 def view():
-    sp = get_spotify_user()
-    if not sp:
-        flash('Spotify account authorization needed')
-        return redirect('/')
+    sp = get_spotify_user()  
     
     playlist_id =  request.args.get('playlist_id')
     name = request.args.get('name')
@@ -115,16 +113,16 @@ def view():
 
 @app.route('/youtube_playlists')
 def yt_playlist():
-    check_yt()
-    return redirect('/')
+    check = check_yt()
+    if check:
+        return check
+    
+    return redirect('/auth')
 
 
 @app.route('/delete')
-def delete():
-    sp = get_spotify_user()
-    if not sp:
-        flash('Spotify account authorization needed')
-        return redirect('/auth')
+def delete():   
+    sp = get_spotify_user()  
     
     playlist_id = request.args.get('playlist_id')
     sp.current_user_unfollow_playlist(playlist_id=playlist_id)
