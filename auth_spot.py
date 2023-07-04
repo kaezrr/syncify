@@ -54,5 +54,5 @@ def create_spotify_oauth():
     return SpotifyOAuth(
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
-                redirect_uri=url_for('redirectPage', _external=True),
+                redirect_uri=url_for('redirectSpotify', _external=True),
                 scope='playlist-read-private playlist-modify-private playlist-modify-public')

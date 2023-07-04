@@ -1,6 +1,7 @@
 from flask import Flask, request, session, redirect, render_template, flash
 from flask_session import Session
 from auth_spot import create_spotify_oauth, get_spotify_user, time_play, time_track
+from auth_yt import youtube_oauth
 
 app = Flask(__name__)
 app.jinja_env.filters["track_time"] = time_track
@@ -44,14 +45,35 @@ def sp_playlist():
 def authspotify():
     sp_oauth = create_spotify_oauth()
     auth_url = sp_oauth.get_authorize_url()
+    
     return redirect(auth_url)
 
 
-@app.route('/redirect')
-def redirectPage():
+@app.route('/authyoutube')
+def authyoutube():
+    yt_oauth = youtube_oauth()
+    auth_url = yt_oauth.authorization_url()
+    
+    return redirect(auth_url[0])
+
+
+@app.route('/redirectspotify')
+def redirectSpotify():
     sp_oauth = create_spotify_oauth()
-    code = request.args.get('code')
-    session['spot_token_info'] = sp_oauth.get_access_token(code)
+    session['spot_token_info'] = sp_oauth.get_access_token(request.args.get('code'))
+    username = get_spotify_user().current_user()['display_name']
+
+    flash(f'Successfully connected to Spotify as {username}!')
+    return redirect('/')
+
+
+@app.route('/redirectyoutube')
+def redirectYoutube():
+    yt_oauth = youtube_oauth()
+    yt_oauth.fetch_token(code=request.args.get('code'))
+    session['yt_token_info'] = yt_oauth.credentials.to_json()
+
+    flash(f'Successfully connected to Youtube as username!')
     return redirect('/')
     
 
