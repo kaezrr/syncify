@@ -1,7 +1,8 @@
 from flask import Flask, request, session, redirect, render_template, flash
 from flask_session import Session
-from auth_spot import create_spotify_oauth, get_spotify_user, time_play, time_track
-from auth_yt import youtube_oauth
+from auth_spot import create_spotify_oauth, get_spotify_user
+from auth_yt import youtube_oauth, check_yt
+from helpers import time_play, time_track
 
 app = Flask(__name__)
 app.jinja_env.filters["track_time"] = time_track
@@ -109,6 +110,13 @@ def view():
         playlist.append(song)
 
     return render_template("view.html", playlist=playlist, name=name, time=time)
+
+
+
+@app.route('/youtube_playlists')
+def yt_playlist():
+    check_yt()
+    return redirect('/')
 
 
 @app.route('/delete')
