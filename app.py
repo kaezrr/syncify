@@ -33,12 +33,17 @@ def sp_playlist():
         return check
     
     sp = get_spotify_user()  
-    
-    playlists = []
+    playlists = []   
+
+    temp = sp.current_user_saved_tracks()['items']
+    liked = {'id': 'Liked Songs', 'name': 'Liked Songs', 
+             'image': temp[0]['track']['album']['images'][0]['url'],
+             'count': len(temp)}
+    playlists.append(liked)      
 
     for list in sp.current_user_playlists()['items']:
-        playlist = {'id': list['id'], 'name': list['name'],'description': list['description'] 
-                    ,'image': sp.playlist_cover_image(list['id'])[0]['url'], 'count': list['tracks']['total']}
+        playlist = {'id': list['id'], 'name': list['name'] ,'image': sp.playlist_cover_image(list['id'])[0]['url'],
+                     'count': list['tracks']['total']}
         playlists.append(playlist)
 
     return render_template('playlist.html', playlists=playlists)
@@ -91,21 +96,37 @@ def view():
     
     playlist_id =  request.args.get('playlist_id')
     name = request.args.get('name')
-    req = sp.playlist_items(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists(name))')['items']
     playlist = []
     time = 0
-    for item in req:
-        track = item.get('track')
-        if not track:
-            continue
-        time += track['duration_ms']
-        song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
-        artists = []
-        for artist in track['artists']:
-            artists.append(artist['name'])
-            
-        song['artists'] = ', '.join(artists)
-        playlist.append(song)
+
+    if playlist_id == 'Liked Songs':
+        temp = sp.current_user_saved_tracks()['items']
+
+        for list in temp:
+            track = list['track']
+            time += track['duration_ms']
+            song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
+            artists = []
+            for artist in track['artists']:
+                artists.append(artist['name'])
+                
+            song['artists'] = ', '.join(artists)
+            playlist.append(song)
+
+    else:
+        req = sp.playlist_items(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists(name))')['items']
+        for item in req:
+            track = item.get('track')
+            if not track:
+                continue
+            time += track['duration_ms']
+            song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
+            artists = []
+            for artist in track['artists']:
+                artists.append(artist['name'])
+                
+            song['artists'] = ', '.join(artists)
+            playlist.append(song)
 
     return render_template("view.html", playlist=playlist, name=name, time=time)
 
