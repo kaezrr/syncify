@@ -24,4 +24,8 @@ def check_yt():
         
     session['yt_token_info'] = credentials
 
+def get_yt_user():
+    return build('youtube', 'v3', credentials=session['yt_token_info'])
+
+
  

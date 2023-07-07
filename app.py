@@ -1,7 +1,7 @@
 from flask import Flask, request, session, redirect, render_template, flash
 from flask_session import Session
 from auth_spot import create_spotify_oauth, get_spotify_user, check_spot
-from auth_yt import youtube_oauth, check_yt
+from auth_yt import youtube_oauth, check_yt, get_yt_user
 from helpers import time_play, time_track
 
 app = Flask(__name__)
@@ -138,7 +138,24 @@ def yt_playlist():
     if check:
         return check
     
-    return redirect('/auth')
+    yt = get_yt_user()
+    response = yt.playlists().list(part='contentDetails,snippet', mine=True).execute()
+
+    pages = response['items']
+
+    while response.get('nextPageToken', None) != None:
+        response = yt.playlists().list(part='contentDetails,snippet', mine=True, pageToken=response['nextPageToken']).execute()
+        for item in response['items']:
+            pages.append(item)
+
+    playlists = []
+    for item in pages:
+        playlist = {'id':item['id'], 'name':item['snippet']['title'], 'image':item['snippet']['thumbnails']['standard']['url'],
+                    'count':item['contentDetails']['itemCount']}
+        playlists.append(playlist)
+
+
+    return render_template('playlist.html', playlists=playlists)
 
 
 @app.route('/delete')
@@ -146,9 +163,15 @@ def delete():
     sp = get_spotify_user()  
     
     playlist_id = request.args.get('playlist_id')
+    if playlist_id == 'Liked Songs':
+        flash('This playlist cannot be deleted!')
+
+        return redirect('/spotify_playlists')
+    
     sp.current_user_unfollow_playlist(playlist_id=playlist_id)
 
-    return redirect('/')
+    flash('Playlist successfully deleted!')
+    return redirect('/spotify_playlists')
 
 @app.route('/disconnect', methods=['POST', 'GET'])
 def disconnect():
