@@ -112,7 +112,11 @@ def redirectYoutube():
     yt_oauth.fetch_token(code=request.args.get('code'))
     session['yt_token_info'] = yt_oauth.credentials
 
-    flash(f'Successfully connected to YouTube as username!')
+    yt=get_yt_user()
+    response = yt.channels().list(part='snippet', mine=True).execute()
+    username = response['items'][0]['snippet']['title']
+
+    flash(f'Successfully connected to YouTube as {username}!')
     return redirect('/')
     
 
@@ -183,13 +187,29 @@ def deletesp():
     playlist_id = request.args.get('playlist_id')
     if playlist_id == 'Liked Songs':
         flash('This playlist cannot be deleted!')
-
         return redirect('/playlists_spotify')
-    
-    sp.current_user_unfollow_playlist(playlist_id=playlist_id)
+    try:
+        sp.current_user_unfollow_playlist(playlist_id=playlist_id)
+    except:
+        flash('Error!')
+        return redirect('/playlists_spotify')
 
     flash('Playlist successfully deleted!')
     return redirect('/playlists_spotify')
+
+
+@app.route('/deleteyt')
+def deleteyt():
+    yt = get_yt_user()
+    id = request.args.get('playlist_id')
+    try:
+        yt.playlists().delete(id=id).execute()
+    except:
+        flash('Error!')
+        return redirect('/playlists_youtube')
+    
+    flash('Playlist successfully deleted!')
+    return redirect('/playlists_youtube')
 
 
 @app.route('/disconnect', methods=['POST', 'GET'])
