@@ -15,7 +15,6 @@ Session(app)
 
 @app.after_request
 def after_request(response):
-    """Ensure responses aren't cached"""
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
@@ -26,27 +25,6 @@ def after_request(response):
 def index():
     return render_template('index.html')
 
-@app.route('/spotify_playlists')
-def sp_playlist():
-    check = check_spot()
-    if check:
-        return check
-    
-    sp = get_spotify_user()  
-    playlists = []   
-
-    temp = sp.current_user_saved_tracks()['items']
-    liked = {'id': 'Liked Songs', 'name': 'Liked Songs', 
-             'image': temp[0]['track']['album']['images'][0]['url'],
-             'count': len(temp)}
-    playlists.append(liked)      
-
-    for list in sp.current_user_playlists()['items']:
-        playlist = {'id': list['id'], 'name': list['name'] ,'image': sp.playlist_cover_image(list['id'])[0]['url'],
-                     'count': list['tracks']['total']}
-        playlists.append(playlist)
-
-    return render_template('playlist.html', playlists=playlists)
 
 @app.route('/auth', methods=['POST', 'GET'])
 def authorize():
@@ -67,7 +45,55 @@ def authorize():
         yt_auth = session.get('yt_token_info', None) != None
 
         return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
+    
 
+@app.route('/playlists_spotify')
+def sp_playlist():
+    check = check_spot()
+    if check:
+        return check
+    
+    sp = get_spotify_user()  
+    playlists = []   
+
+    temp = sp.current_user_saved_tracks()['items']
+    liked = {'type':'sp', 'id': 'Liked Songs', 'name': 'Liked Songs', 
+             'image': temp[0]['track']['album']['images'][0]['url'],
+             'count': len(temp)}
+    playlists.append(liked)      
+
+    for list in sp.current_user_playlists()['items']:
+        playlist = {'type':'sp', 'id': list['id'], 'name': list['name'] ,'image': sp.playlist_cover_image(list['id'])[0]['url'],
+                     'count': list['tracks']['total']}
+        playlists.append(playlist)
+
+    return render_template('playlist.html', playlists=playlists)
+
+
+@app.route('/playlists_youtube')
+def yt_playlist():
+    check = check_yt()
+    if check:
+        return check
+    
+    yt = get_yt_user()
+    response = yt.playlists().list(part='contentDetails,snippet', mine=True).execute()
+
+    pages = response['items']
+
+    while response.get('nextPageToken', None) != None:
+        response = yt.playlists().list(part='contentDetails,snippet', mine=True, pageToken=response['nextPageToken']).execute()
+        for item in response['items']:
+            pages.append(item)
+
+    playlists = []
+    for item in pages:
+        playlist = {'type':'yt', 'id':item['id'], 'name':item['snippet']['title'], 'image':item['snippet']['thumbnails']['standard']['url'],
+                    'count':item['contentDetails']['itemCount']}
+        playlists.append(playlist)
+
+
+    return render_template('playlist.html', playlists=playlists)
 
 
 @app.route('/redirectspotify')
@@ -90,8 +116,8 @@ def redirectYoutube():
     return redirect('/')
     
 
-@app.route('/view')
-def view():
+@app.route('/viewsp')
+def viewsp():
     sp = get_spotify_user()  
     
     playlist_id =  request.args.get('playlist_id')
@@ -131,47 +157,40 @@ def view():
     return render_template("view.html", playlist=playlist, name=name, time=time)
 
 
-
-@app.route('/youtube_playlists')
-def yt_playlist():
-    check = check_yt()
-    if check:
-        return check
-    
+@app.route('/viewyt')
+def viewyt():
     yt = get_yt_user()
-    response = yt.playlists().list(part='contentDetails,snippet', mine=True).execute()
+    id = request.args.get('playlist_id')
+    response = yt.playlistItems().list(part='contentDetails', playlistId=id).execute()
 
     pages = response['items']
 
     while response.get('nextPageToken', None) != None:
-        response = yt.playlists().list(part='contentDetails,snippet', mine=True, pageToken=response['nextPageToken']).execute()
+        response = yt.playlistItems().list(part='contentDetails', playlistId=id, pageToken=response['nextPageToken']).execute()
         for item in response['items']:
             pages.append(item)
-
-    playlists = []
+    videos = []
     for item in pages:
-        playlist = {'id':item['id'], 'name':item['snippet']['title'], 'image':item['snippet']['thumbnails']['standard']['url'],
-                    'count':item['contentDetails']['itemCount']}
-        playlists.append(playlist)
+        videos.append(item['contentDetails']['videoId'])
+
+    return videos
 
 
-    return render_template('playlist.html', playlists=playlists)
-
-
-@app.route('/delete')
-def delete():   
+@app.route('/deletesp')
+def deletesp():   
     sp = get_spotify_user()  
     
     playlist_id = request.args.get('playlist_id')
     if playlist_id == 'Liked Songs':
         flash('This playlist cannot be deleted!')
 
-        return redirect('/spotify_playlists')
+        return redirect('/playlists_spotify')
     
     sp.current_user_unfollow_playlist(playlist_id=playlist_id)
 
     flash('Playlist successfully deleted!')
-    return redirect('/spotify_playlists')
+    return redirect('/playlists_spotify')
+
 
 @app.route('/disconnect', methods=['POST', 'GET'])
 def disconnect():
