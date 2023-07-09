@@ -24,13 +24,13 @@
                 <td class="col-md-3">{{ song.name }}</td>
                 <td class="col-md-2">{{ song.artists }}</td>
                 <td class="col-md-1">{{ song.duration | track_time }}</td>
+                <td class="col-md-1">
                 {% if song.url != None %}
-                    <form action="{{ song.url }}">
-                        <td class="col-md-1"><button type="submit" class="btn btn-success">Listen</button></td>
-                    </form>
+                    <a class="btn btn-success" href="{{ song.url }}">Listen</button>
                 {% else %}
-                    <td class="col-md-1"><button type="button" class="btn btn-outline-success disabled">Listen</button></td>
+                    <a class="btn btn-outline-danger disabled">Listen</button></td>
                 {% endif %}
+                </td>
             </tr>
         {% endfor %}
     </tbody>

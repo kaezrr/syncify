@@ -19,6 +19,7 @@
                         <p class="card-text">Tracks: {{ playlist.count }}</p>
                         <form method="get">
                             <input type="hidden" name="playlist_id" value="{{ playlist.id }}">
+                            <input type="hidden" name="name" value="{{ playlist.name }}">
                             {% if playlist.type == 'sp' %}
                                 <button class="btn btn-success" type="submit" formaction="/convert">Convert</button>
                                 <button class="btn btn-primary" type="submit" formaction="/viewsp">View</button>

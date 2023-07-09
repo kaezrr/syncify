@@ -3,6 +3,7 @@ from flask_session import Session
 from auth_spot import create_spotify_oauth, get_spotify_user, check_spot
 from auth_yt import youtube_oauth, check_yt, get_yt_user
 from helpers import time_play, time_track
+import isodate
 
 app = Flask(__name__)
 app.jinja_env.filters["track_time"] = time_track
@@ -79,15 +80,15 @@ def yt_playlist():
     yt = get_yt_user()
     response = yt.playlists().list(part='contentDetails,snippet', mine=True).execute()
 
-    pages = response['items']
+    video_ids = response['items']
 
     while response.get('nextPageToken', None) != None:
         response = yt.playlists().list(part='contentDetails,snippet', mine=True, pageToken=response['nextPageToken']).execute()
         for item in response['items']:
-            pages.append(item)
+            video_ids.append(item)
 
     playlists = []
-    for item in pages:
+    for item in video_ids:
         playlist = {'type':'yt', 'id':item['id'], 'name':item['snippet']['title'], 'image':item['snippet']['thumbnails']['standard']['url'],
                     'count':item['contentDetails']['itemCount']}
         playlists.append(playlist)
@@ -165,19 +166,35 @@ def viewsp():
 def viewyt():
     yt = get_yt_user()
     id = request.args.get('playlist_id')
-    response = yt.playlistItems().list(part='contentDetails', playlistId=id).execute()
-
-    pages = response['items']
-
-    while response.get('nextPageToken', None) != None:
-        response = yt.playlistItems().list(part='contentDetails', playlistId=id, pageToken=response['nextPageToken']).execute()
+    name = request.args.get('name')
+    time = 0
+    response = yt.playlistItems().list(part='contentDetails', playlistId=id, maxResults=50).execute()
+    video_ids = []
+    playlist = []
+    while True:
+        temp = []
         for item in response['items']:
-            pages.append(item)
-    videos = []
-    for item in pages:
-        videos.append(item['contentDetails']['videoId'])
+           temp.append(item['contentDetails']['videoId'])
+        video_ids.append(temp)
+        if response.get('nextPageToken', None) == None:
+            break
+        response = yt.playlistItems().list(part='contentDetails', playlistId=id, pageToken=response['nextPageToken'], maxResults=50).execute()
 
-    return videos
+    for part in video_ids:
+        response = yt.videos().list(part='snippet,contentDetails', id=','.join(part)).execute()
+        while True:
+            for item in response['items']:
+                dur = isodate.parse_duration(item['contentDetails']['duration']).total_seconds() * 1000
+                song = {'name': item['snippet']['title'], 'artists': item['snippet']['channelTitle'],
+                        'duration': dur,
+                        'url':f"https://youtube.com/watch?v={item['id']}"}
+                time += dur
+                playlist.append(song)
+            if response.get('nextPageToken', None) == None:
+                break
+            response = yt.videos().list(part='snippet,contentDetails', id=','.join(part), pageToken=response['nextPageToken']).execute()
+            
+    return render_template("view.html", playlist=playlist, name=name, time=time)
 
 
 @app.route('/deletesp')
