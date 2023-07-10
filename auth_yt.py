@@ -3,6 +3,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from flask import session, redirect, flash
 
+# Write (your_website)/redirectyoutube in redirect_uri
 
 def youtube_oauth():
     flow = InstalledAppFlow.from_client_secrets_file('client_secrets.json',
