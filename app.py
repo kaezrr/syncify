@@ -211,6 +211,10 @@ def disconnect():
 
 @app.route('/convert', methods=['GET', 'POST'])
 def convert():
+    check = check_yt()
+    if check:
+        return check
+    
     yt = get_yt_user()
     sp = get_spotify_user()
     if request.method == 'GET':
