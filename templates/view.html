@@ -26,7 +26,7 @@
                 <td class="col-md-1">{{ song.duration | track_time }}</td>
                 <td class="col-md-1">
                 {% if song.url != None %}
-                    <a class="btn btn-success" href="{{ song.url }}">Listen</button>
+                    <a class="btn btn-success" href="{{ song.url }}" target="_blank">Listen</button>
                 {% else %}
                     <a class="btn btn-outline-danger disabled">Listen</button></td>
                 {% endif %}

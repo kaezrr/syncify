@@ -20,7 +20,7 @@ def check_spot():
     if token_info:
         if token_info['expires_at'] - int(time.time()) < 60:
             sp_oauth =  create_spotify_oauth()
-            token_info = sp_oauth.refresh_access_token(token_info['refresh-token'])
+            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
     else:
         flash('Spotify account authorization needed!')
         return redirect('/')

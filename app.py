@@ -13,7 +13,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -48,20 +47,14 @@ def authorize():
         return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
     
 
-@app.route('/playlists_spotify')
+@app.route('/playlists_spotify', methods=['GET', 'POST'])
 def sp_playlist():
     check = check_spot()
     if check:
         return check
     
     sp = get_spotify_user()  
-    playlists = []   
-
-    temp = sp.current_user_saved_tracks()['items']
-    liked = {'type':'sp', 'id': 'Liked Songs', 'name': 'Liked Songs', 
-             'image': temp[0]['track']['album']['images'][0]['url'],
-             'count': len(temp)}
-    playlists.append(liked)      
+    playlists = []       
 
     for list in sp.current_user_playlists()['items']:
         playlist = {'type':'sp', 'id': list['id'], 'name': list['name'] ,'image': sp.playlist_cover_image(list['id'])[0]['url'],
@@ -129,35 +122,13 @@ def viewsp():
     name = request.args.get('name')
     playlist = []
     time = 0
-
-    if playlist_id == 'Liked Songs':
-        temp = sp.current_user_saved_tracks()['items']
-
-        for list in temp:
-            track = list['track']
-            time += track['duration_ms']
-            song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
-            artists = []
-            for artist in track['artists']:
-                artists.append(artist['name'])
-                
-            song['artists'] = ', '.join(artists)
-            playlist.append(song)
-
-    else:
-        req = sp.playlist_items(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists(name))')['items']
-        for item in req:
-            track = item.get('track')
-            if not track:
-                continue
-            time += track['duration_ms']
-            song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
-            artists = []
-            for artist in track['artists']:
-                artists.append(artist['name'])
-                
-            song['artists'] = ', '.join(artists)
-            playlist.append(song)
+    req = sp.playlist_tracks(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists.name)')['items']
+    for item in req:
+        track = item['track']
+        time += track['duration_ms']
+        song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
+        song['artists'] = ', '.join(artist['name'] for artist in track['artists'])
+        playlist.append(song)
 
     return render_template("view.html", playlist=playlist, name=name, time=time)
 
@@ -168,6 +139,7 @@ def viewyt():
     id = request.args.get('playlist_id')
     name = request.args.get('name')
     time = 0
+
     response = yt.playlistItems().list(part='contentDetails', playlistId=id, maxResults=50).execute()
     video_ids = []
     playlist = []
@@ -187,7 +159,7 @@ def viewyt():
                 dur = isodate.parse_duration(item['contentDetails']['duration']).total_seconds() * 1000
                 song = {'name': item['snippet']['title'], 'artists': item['snippet']['channelTitle'],
                         'duration': dur,
-                        'url':f"https://youtube.com/watch?v={item['id']}"}
+                        'url':f"https://youtu.be/{item['id']}"}
                 time += dur
                 playlist.append(song)
             if response.get('nextPageToken', None) == None:
@@ -200,11 +172,7 @@ def viewyt():
 @app.route('/deletesp')
 def deletesp():   
     sp = get_spotify_user()  
-    
     playlist_id = request.args.get('playlist_id')
-    if playlist_id == 'Liked Songs':
-        flash('This playlist cannot be deleted!')
-        return redirect('/playlists_spotify')
     try:
         sp.current_user_unfollow_playlist(playlist_id=playlist_id)
     except:
@@ -241,6 +209,59 @@ def disconnect():
     return redirect('/')
 
 
+@app.route('/convert', methods=['GET', 'POST'])
+def convert():
+    yt = get_yt_user()
+    sp = get_spotify_user()
+    if request.method == 'GET':
+        id = request.args.get('playlist_id')
+        name = request.args.get('name')
+        queries = []
+        playlist = []
 
+        for item in sp.playlist_tracks(playlist_id=id, fields='items.track(name, artists.name)')['items']:
+            track = item['track']
+            query = [track['name']]
+            query.extend(artist['name'] for artist in track['artists'])
+            queries.append(' '.join(query)) 
+
+        for query in queries:
+            rep = yt.search().list(part='snippet,id', q=query, type='video', maxResults=1).execute()['items'][0]
+            video = {'id': rep['id']['videoId'], 'name': rep['snippet']['title'],
+                    'channel': rep['snippet']['channelTitle'], 'url': f"https://youtu.be/{rep['id']['videoId']}"}
+            playlist.append(video)
+
+        return render_template('convert.html', playlist=playlist, name=name)
+    else:
+        name = request.form.get('name')
+        video_ids = request.form.getlist('videoId')
+        response = yt.playlists().insert(part='snippet,status',
+            body={
+                'snippet': {
+                    'title': name,
+                    'description': 'This playlist was created via Spotube!.'
+                },
+                'status': {
+                    'privacyStatus': 'private'
+                }
+            }).execute()
+        
+        playlist_id = response['id']
+        for video_id in video_ids:
+            yt.playlistItems().insert(
+                part='snippet',
+                body={
+                    'snippet': {
+                        'playlistId': playlist_id,
+                        'resourceId': {
+                            'kind': 'youtube#video',
+                            'videoId': video_id
+                        }
+                    }
+                }
+            ).execute()
+
+        flash('Playlist successfully converted!')
+        return redirect('/playlists_youtube')
 
 
