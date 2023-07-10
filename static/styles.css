@@ -27,3 +27,25 @@ nav .navbar-brand .green
     height: 10vw;
     object-fit: cover;
 }
+
+body 
+{
+    background-color: #1c1c1c;
+    color: #f1f1f1;
+}
+
+header 
+{
+    background-color: #333;
+    color: #f1f1f1;
+}
+
+a 
+{
+    color: #999;
+}
+
+p, span, h1, h2, h3 
+{
+    color: #f1f1f1;
+}

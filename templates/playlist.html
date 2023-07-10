@@ -8,13 +8,13 @@
     <div class="row row-cols-1 row-cols-md-2 g-4">
     {% for playlist in playlists %}
     <div class="col">
-        <div class="card border-dark mb-3" style="max-width: 540px;">
+        <div class="card mb-3 text-white bg-dark" style="max-width: 540px;">
             <div class="row g-0">
                 <div class="col-md-4">
                     <img src="{{ playlist.image }}" class="img-fluid rounded-start card-img-top" alt="...">
                 </div>
                 <div class="col-md-8">
-                    <div class="card-body">
+                    <div class="card-body ">
                         <h5 class="card-title">{{ playlist.name }}</h5>
                         <p class="card-text">Tracks: {{ playlist.count }}</p>
                         <form method="get">
