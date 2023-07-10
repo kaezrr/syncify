@@ -1,7 +1,7 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-from flask import session, redirect, url_for, flash
+from flask import session, redirect, flash
 
 
 def youtube_oauth():
