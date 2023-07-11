@@ -2,12 +2,12 @@ import os
 import spotipy, time
 from flask import session, url_for, flash, redirect
 from spotipy.oauth2 import SpotifyOAuth
-from dotenv import load_dotenv
-
-load_dotenv()
-
-CLIENT_ID = os.getenv('SPOTIFY_ID')
-CLIENT_SECRET = os.getenv('SPOTIFY_SECRET')
+import json
+# These 2 variables are the spotify API info. 
+with open("apiinfo.json") as f:
+    CLIENT_INFO = json.load(f)
+CLIENT_ID = CLIENT_INFO['CLIENT_ID']
+CLIENT_SECRET = CLIENT_INFO["CLIENT_SECRET"]
 
 
 def get_spotify_user():

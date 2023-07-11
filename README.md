@@ -55,8 +55,9 @@ To run the application on your own, follow these steps (assuming you are using a
 - Clone the repository using `git clone` in a directory of your choice.
 - In the same directory, run `pip install -r requirements.txt` to install all the necessary libraries.
 - **Obtain your API credentials from YouTube and Spotify**:
-    - Refer to the [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api) to obtain your `CLIENT_ID` and `CLIENT_SECRET`. Create a `.env` file in your app directory and add two variables, `SPOTIFY_ID` and `SPOTIFY_SECRET`, containing your respective credentials.
-    - Follow the [YouTube Data API v3 Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en) to create an OAuth2.0 Client. Download the resulting `.json` file, rename it to `client_secrets.json`, and place it in your app directory.
+    - Follow the [YouTube Data API v3 Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en) to create an OAuth2.0 Client. Download the resulting `.json` file, rename it to `apiinfo.json`, and place it in your app directory.
+        - You only need the READONLY permissions from the youtube API
+    - Refer to the [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api) to obtain your `CLIENT_ID` and `CLIENT_SECRET`. Using the JSON file you made earlier for youtube, put your client ID in the `CLIENT_ID` section and your client secret in the `CLIENT_SECRET` section.
 - Ensure that you add proper Redirect URIs to both Spotify and YouTube APIs; otherwise, a `Redirect_URI_Mismatch` error will occur during user authentication.
 - Until your API Client is fully verified by Spotify/Google, OAuth2 authentication to user accounts will only be available to 'testers' added by you in the Developer dashboards.
 

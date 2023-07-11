@@ -1,0 +1,13 @@
+{
+    "CLIENT_ID": "",
+    "CLIENT_SECRET": "",
+    "comment": "Your youtube info goes in this web section",
+    "web": {
+        "client_id": "",
+        "project_id": "",
+        "auth_uri": "",
+        "token_uri": "",
+        "auth_provider_x509_cert_url": "",
+        "client_secret": ""
+    }
+}

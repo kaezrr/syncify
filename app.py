@@ -23,11 +23,15 @@ def after_request(response):
 
 @app.route('/')
 def index():
+    """
+    Home page of website
+    """
     return render_template('index.html')
 
 
 @app.route('/auth', methods=['POST', 'GET'])
 def authorize():
+    """Authorizes the user on the service they choose on post requests and returns an html template with info on authorization and deauthorization on a GET request."""
     if request.method == 'POST':
         service = request.form.get('connect')
         if service == 'spotify':
@@ -35,16 +39,14 @@ def authorize():
             auth_url = sp_oauth.get_authorize_url()
             
             return redirect(auth_url)
-        elif service == 'youtube':
+        else:
             yt_oauth = youtube_oauth()
             auth_url = yt_oauth.authorization_url()
-            
             return redirect(auth_url[0])
-    else:
-        spot_auth = session.get('spot_token_info', None) != None
-        yt_auth = session.get('yt_token_info', None) != None
+    spot_auth = session.get('spot_token_info', None) != None
+    yt_auth = session.get('yt_token_info', None) != None
 
-        return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
+    return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
     
 
 @app.route('/playlists_spotify', methods=['GET', 'POST'])
