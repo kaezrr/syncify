@@ -1,4 +1,5 @@
 # Syncify
+#### Video Demo:  <URL HERE>
 #### Description:
 [Syncify](https://kaezr.pythonanywhere.com/) is a web app that you can use to convert your Spotify playlists to YouTube playlists with the just a couple of clicks!
 <br>
@@ -8,6 +9,7 @@ First connect your Spotify and YouTube account to app through the `Authorize` pa
 After connecting your accounts to both Spotify and YouTube, you will have access to the rest of the website.
 
 <br>
+
 Through the `Spotify playlists` page you can browse through your playlists on Spotify and have access to features such as :
 
 + View a playlist, which will provide a table on the details of every song in that playlist, and a link to that song on Spotify and the total duration of that playlist.
