@@ -1,5 +1,4 @@
 # Syncify
-#### Video Demo: [URL HERE]
 #### Description:
 
 [Syncify](https://kaezr.pythonanywhere.com/) is a web app that enables you to effortlessly convert your Spotify playlists into YouTube playlists with just a few clicks!
