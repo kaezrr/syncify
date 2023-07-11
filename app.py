@@ -82,7 +82,11 @@ def yt_playlist():
 
     playlists = []
     for item in video_ids:
-        playlist = {'type':'yt', 'id':item['id'], 'name':item['snippet']['title'], 'image':item['snippet']['thumbnails']['standard']['url'],
+        try:
+            img = item['snippet']['thumbnails']['standard']['url']
+        except:
+            img = None
+        playlist = {'type':'yt', 'id':item['id'], 'name':item['snippet']['title'], 'image':img,
                     'count':item['contentDetails']['itemCount']}
         playlists.append(playlist)
 
@@ -122,11 +126,11 @@ def viewsp():
     name = request.args.get('name')
     playlist = []
     time = 0
-    req = sp.playlist_tracks(playlist_id=playlist_id, fields='items.track(name, duration_ms, preview_url, artists.name)')['items']
+    req = sp.playlist_tracks(playlist_id=playlist_id, fields='items.track(name, duration_ms, external_urls.spotify, artists.name)')['items']
     for item in req:
         track = item['track']
         time += track['duration_ms']
-        song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['preview_url']}
+        song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['external_urls']['spotify']}
         song['artists'] = ', '.join(artist['name'] for artist in track['artists'])
         playlist.append(song)
 
@@ -243,7 +247,7 @@ def convert():
             body={
                 'snippet': {
                     'title': name,
-                    'description': 'This playlist was created via Spotube!.'
+                    'description': 'This playlist was created via Syncify!.'
                 },
                 'status': {
                     'privacyStatus': 'private'
