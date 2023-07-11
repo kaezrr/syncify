@@ -1,39 +1,39 @@
 # Syncify
 #### Video Demo:  <URL HERE>
 #### Description:
-[Syncify](https://kaezr.pythonanywhere.com/) is a web app that you can use to convert your Spotify playlists to YouTube playlists with the just a couple of clicks!
+[Syncify](https://kaezr.pythonanywhere.com/) is a web app that enables you to effortlessly convert your Spotify playlists into YouTube playlists with just a few clicks!
 <br>
-First connect your Spotify and YouTube account to app through the `Authorize` page, available on the top right corner of the Home Page.
-
+To get started, connect your Spotify and YouTube accounts to the app through the Authorize page, located in the top right corner of the Home Page.
 <br>
-After connecting your accounts to both Spotify and YouTube, you will have access to the rest of the website.
+Once you've linked your Spotify and YouTube accounts, you'll gain access to the rest of the website.
 
-<br>
+On the `Spotify playlists` page, you can browse through your Spotify playlists and enjoy the following features:
 
-Through the `Spotify playlists` page you can browse through your playlists on Spotify and have access to features such as :
-
-+ View a playlist, which will provide a table on the details of every song in that playlist, and a link to that song on Spotify and the total duration of that playlist.
++ View a playlist, which displays a table containing details for each song in the playlist, including a link to the song on Spotify and the total playlist duration.
 + Delete a playlist from your Spotify account.
-+ And last but not least, convert your playlist to YouTube, which will provide a table of YouTube videos that the apps algorithm has picked based on your Spotify playlist, with a link to each of them. Then you can choose to exclude any videos you think are incorrect and finalize the playlist.
++ Convert your playlist to YouTube. This feature generates a table of YouTube videos based on your Spotify playlist, with a link to each video. You can review the suggested videos, exclude any that are incorrect, and finalize the playlist.
 
-`YouTube playlists` page contains identical features to the `Spotify playlists` except conversion of playlists.
+The `YouTube playlists` page offers identical features to the `Spotify playlists` page, except for playlist conversion.
 
 #### APIs used:
 + YouTube Data API v3 -> [Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en)
 + Spotify Web API -> [Documentation](https://developer.spotify.com/documentation/web-api)
 
 #### Libraries used:
-+ `flask` for the web app framework.
-+ `flask-session` to store session cookies.
-+ `spotipy` to interact with the Spotify Web API via Python.
-+ `python-dotenv` to store API credentials in a `.env` file for security purposes.
-+ `google-api-python-client` to interact with the YouTube Data API v3 via Python.
-+ `google-auth` and `google-auth-oauthlib` to use OAuth2 to connect user's YouTube account to Syncify
-+ `isodate` to parse YouTube API's `ISO 8601` durations to seconds to display video durations properly while viewing playlists. 
+The following libraries were utilized in the development of Syncify:
+
++ `flask` - Web app framework.
++ `flask-session` - Storage of session cookies.
++ `spotipy` - Interaction with the Spotify Web API using Python.
++ `python-dotenv` - Secure storage of API credentials in a .env file.
++ `google-api-python-client` - Interaction with the YouTube Data API v3 using Python.
++ `google-auth` and `google-auth-oauthlib` - OAuth2.0 usage for connecting user's YouTube account to Syncify.
++ `isodate` - Parsing of YouTube API's ISO 8601 durations to seconds for proper display of video durations in playlists.
 
 All the libraries required to run the application are listed in the `requirements.txt` file.
 
 #### Tech stack used:
+Syncify was built using the following technologies:
 + Python
 + Flask
 + HTML and CSS
@@ -41,35 +41,33 @@ All the libraries required to run the application are listed in the `requirement
 + Bootstrap Framework for HTML pages
 
 #### Running the app on your own:
->The follow steps assume you are using a `bash` terminal in your codespace.
-
-Incase you want to run the application on your own you can do so by doing the following steps:
-+ (Optional but recommended) Create a virtual environment.
-    - Create one using the command `python -m .venv <virtualenvname>` in the directory where you want to store your virtual environment.
-    - Then activate it using the command `source <virtualenvname>/Scripts/Activate` on Windows. You can deactivate the virtual environment by running `deactivate`.
-+ `git clone` the repository in a directory of your choice.
-+ In the same directory run `pip install -r requirements.txt` to install all the required libraries at once. 
-+ **Get your API credentials from YouTube and Spotify**
-    - Follow [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api) till you get your `CLIENT_ID` and `CLIENT_SECRET`. In your app directory create a `.env` file and create two variables `SPOTIFY_ID` and `SPOTIFY_SECRET` and store your `CLIENT_ID` and `CLIENT_SECRET` in them respectively.
-    - Follow [YouTube Data API v3 Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en) till you can create an OAuth2.0 Client. Then you will have the option to download a `.json` file, download it and rename it to `client_secrets.json` and store it in your app directory.
-+ Remember to add proper Redirect_URIs to both Spotify and YouTube API, or it will return a `Redirect_URI_Mismatch` error upon user authentication.
-+ Until your API Client gets properly verified by Spotify/Google. OAuth2 authentication to user accounts will only be restricted to 'testers' added by you to the Developer dashboards.
+To run the application on your own, follow these steps (assuming you are using a bash terminal in your codespace):
++ Optional but recommended) Create a virtual environment:
+    - Create a virtual environment using the command `python -m .venv <virtualenvname>` in the desired directory.
+    - Activate the virtual environment using the command `source <virtualenvname>/Scripts/Activate` on Windows. To deactivate the virtual environment, run `deactivate`.
++ Clone the repository using `git clone` in a directory of your choice.
++ In the same directory, run `pip install -r requirements.txt` to install all the necessary libraries.
++ **Obtain your API credentials from YouTube and Spotify**
+    - Refer to the [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api) to obtain your `CLIENT_ID` and `CLIENT_SECRET`. Create a `.env` file in your app directory and add two variables, `SPOTIFY_ID` and `SPOTIFY_SECRET`, containing your respective credentials.
+    - Follow [YouTube Data API v3 Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en) and create an OAuth2.0 Client. Then you will have the option to download a `.json` file, download it and rename it to `client_secrets.json`, and place it in your app directory.
++ Ensure that you add proper Redirect URIs to both Spotify and YouTube APIs, otherwise a `redirect_URI_mismatch` error will occur during user authentication.
++ Until your API Client is fully verified by Spotify/Google, OAuth2.0 authentication to user accounts will only be available to 'testers' added by you in the Developer dashboards.
 
 #### File Explanations:
 + /static
     - `icon.ico` - Tab icon.
-    - `styles.css` - CSS file that runs that all the HTML files in `/templates` use.
+    - `styles.css` -  CSS file used by all HTML files in `/templates`.
 + /templates
-    - `auth.html` - Authorization page that displays the connections to Spotify and YouTube.
-    - `convert.html` - Page that displays the proposed playlist before confirming conversion.
+    - `auth.html` - Authorization page that displays connections to Spotify and YouTube.
+    - `convert.html` -  Page displaying the proposed playlist before confirming conversion.
     - `index.html`  - Homepage of the app.
-    - `layout.html` - HTML file that contains the navigation bar and from which all other pages extend from.
-    - `playlist.html` - Page that displays all the YouTube/Spotify playlists that the user has.
-    - `view.html` - Page that displays tabulated data about a playlist of the user's choice.
-+ `.gitignore` - Git file that ignores unneccesary/sensitive files such as `.env` and `client_secrets.json` while committing to the GitHub repository.
-+ `app.py` - The main python file that contains all the necessary code to run the web application, needs `auth_spot.py`, `auth_yt.py` and `helpers.py` to import functions necessary to run the app.
-+ `auth_spot.py` - Python file that contains all the code that performs and validates user authentication to Spotify.
-+ `auth_yt.py` - Python file that contains all the code that performs and validates user authentication to YouTube.
-+ `helpers.py` - Python file that contains some helper functions mainly that aid in proper display of playlist and track durations in `view.html` and `convert.html`.
-+ `README.md` - The file you are reading right now ;)
+    - `layout.html` - HTML file containing the navigation bar, used as the base for all other pages.
+    - `playlist.html` - Page displaying all YouTube/Spotify playlists associated with the user.
+    - `view.html` - Page displaying tabulated data about a playlist of the user's choice.
++ `.gitignore` - Git file that excludes unnecessary/sensitive files (such as `.env` and `client_secrets.json`) from being committed to the GitHub repository.
++ `app.py` - The main Python file containing all the necessary code to run the web application. It imports functions from `auth_spot.py`, `auth_yt.py`, and `helpers.py`.
++ `auth_spot.py` - Python file containing code for performing and validating user authentication with Spotify.
++ `auth_yt.py` - Python file containing code for performing and validating user authentication with YouTube.
++ `helpers.py` - Python file containing helper functions that aid in the proper display of playlist and track durations in `view.html` and `convert.html`.
++ `README.md` - The file you are currently reading ;)
 + `requirements.txt` - A text file containing the names of all the libraries necessary to run Syncify.
