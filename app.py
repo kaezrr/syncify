@@ -270,6 +270,6 @@ def convert():
             ).execute()
 
         flash('Playlist successfully converted!')
-        return redirect('/playlists_youtube')
+        return redirect('/playlists_spotify')
 
 
