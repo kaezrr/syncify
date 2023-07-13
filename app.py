@@ -20,12 +20,12 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
+# homepage route
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
+# authorization page route
 @app.route('/auth', methods=['POST', 'GET'])
 def authorize():
     if request.method == 'POST':
@@ -47,6 +47,7 @@ def authorize():
         return render_template('auth.html', spot_auth=spot_auth, yt_auth=yt_auth)
     
 
+# spotify playlists route
 @app.route('/playlists_spotify', methods=['GET', 'POST'])
 def sp_playlist():
     check = check_spot()
@@ -57,13 +58,20 @@ def sp_playlist():
     playlists = []       
 
     for list in sp.current_user_playlists()['items']:
-        playlist = {'type':'sp', 'id': list['id'], 'name': list['name'] ,'image': sp.playlist_cover_image(list['id'])[0]['url'],
-                     'count': list['tracks']['total']}
+        playlist = {
+            'type':'sp', 
+            'id': list['id'], 
+            'name': list['name'],
+            'image': sp.playlist_cover_image(list['id'])[0]['url'],
+            'count': list['tracks']['total']
+            }
+        
         playlists.append(playlist)
 
     return render_template('playlist.html', playlists=playlists)
 
 
+# youtube playlists route
 @app.route('/playlists_youtube')
 def yt_playlist():
     check = check_yt()
@@ -71,12 +79,20 @@ def yt_playlist():
         return check
     
     yt = get_yt_user()
-    response = yt.playlists().list(part='contentDetails,snippet', mine=True).execute()
+    response = yt.playlists().list(
+        part='contentDetails,snippet', 
+        mine=True
+        ).execute()
 
     video_ids = response['items']
 
     while response.get('nextPageToken', None) != None:
-        response = yt.playlists().list(part='contentDetails,snippet', mine=True, pageToken=response['nextPageToken']).execute()
+        response = yt.playlists().list(
+            part='contentDetails,snippet', 
+            mine=True, 
+            pageToken=response['nextPageToken']
+            ).execute()
+        
         for item in response['items']:
             video_ids.append(item)
 
@@ -86,14 +102,21 @@ def yt_playlist():
             img = item['snippet']['thumbnails']['standard']['url']
         except:
             img = None
-        playlist = {'type':'yt', 'id':item['id'], 'name':item['snippet']['title'], 'image':img,
-                    'count':item['contentDetails']['itemCount']}
+        playlist = {
+            'type':'yt', 
+            'id':item['id'], 
+            'name':item['snippet']['title'], 
+            'image':img,
+            'count':item['contentDetails']['itemCount']
+            }
+        
         playlists.append(playlist)
 
 
     return render_template('playlist.html', playlists=playlists)
 
 
+# spotify authorization callback route
 @app.route('/redirectspotify')
 def redirectSpotify():
     sp_oauth = create_spotify_oauth()
@@ -104,6 +127,7 @@ def redirectSpotify():
     return redirect('/')
 
 
+# youtube authorization callback route
 @app.route('/redirectyoutube')
 def redirectYoutube():
     yt_oauth = youtube_oauth()
@@ -111,13 +135,17 @@ def redirectYoutube():
     session['yt_token_info'] = yt_oauth.credentials
 
     yt=get_yt_user()
-    response = yt.channels().list(part='snippet', mine=True).execute()
+    response = yt.channels().list(
+        part='snippet', 
+        mine=True
+        ).execute()
     username = response['items'][0]['snippet']['title']
 
     flash(f'Successfully connected to YouTube as {username}!')
     return redirect('/')
     
 
+# view spotify playlist route
 @app.route('/viewsp')
 def viewsp():
     sp = get_spotify_user()  
@@ -126,53 +154,84 @@ def viewsp():
     name = request.args.get('name')
     playlist = []
     time = 0
-    req = sp.playlist_tracks(playlist_id=playlist_id, fields='items.track(name, duration_ms, external_urls.spotify, artists.name)')['items']
+    req = sp.playlist_tracks(
+        playlist_id=playlist_id, 
+        fields='items.track(name, duration_ms, external_urls.spotify, artists.name)'
+        )['items']
+    
     for item in req:
         track = item['track']
         time += track['duration_ms']
-        song = {'name': track['name'], 'duration': track['duration_ms'], 'url': track['external_urls']['spotify']}
+        song = {
+            'name': track['name'], 
+            'duration': track['duration_ms'], 
+            'url': track['external_urls']['spotify']
+            }
         song['artists'] = ', '.join(artist['name'] for artist in track['artists'])
         playlist.append(song)
 
     return render_template("view.html", playlist=playlist, name=name, time=time)
 
 
+# view youtube playlist route
 @app.route('/viewyt')
 def viewyt():
     yt = get_yt_user()
     id = request.args.get('playlist_id')
     name = request.args.get('name')
     time = 0
-
-    response = yt.playlistItems().list(part='contentDetails', playlistId=id, maxResults=50).execute()
     video_ids = []
     playlist = []
+
+    response = yt.playlistItems().list(
+        part='contentDetails', 
+        playlistId=id, 
+        maxResults=50
+        ).execute()
+    
     while True:
         temp = []
         for item in response['items']:
            temp.append(item['contentDetails']['videoId'])
         video_ids.append(temp)
+
         if response.get('nextPageToken', None) == None:
             break
-        response = yt.playlistItems().list(part='contentDetails', playlistId=id, pageToken=response['nextPageToken'], maxResults=50).execute()
+
+        response = yt.playlistItems().list(
+            part='contentDetails', 
+            playlistId=id, 
+            pageToken=response['nextPageToken'], 
+            maxResults=50
+            ).execute()
 
     for part in video_ids:
         response = yt.videos().list(part='snippet,contentDetails', id=','.join(part)).execute()
         while True:
             for item in response['items']:
                 dur = isodate.parse_duration(item['contentDetails']['duration']).total_seconds() * 1000
-                song = {'name': item['snippet']['title'], 'artists': item['snippet']['channelTitle'],
-                        'duration': dur,
-                        'url':f"https://youtu.be/{item['id']}"}
+                song = {
+                    'name': item['snippet']['title'],
+                    'artists': item['snippet']['channelTitle'],
+                    'duration': dur,
+                    'url':f"https://youtu.be/{item['id']}"
+                    }
                 time += dur
                 playlist.append(song)
+
             if response.get('nextPageToken', None) == None:
                 break
-            response = yt.videos().list(part='snippet,contentDetails', id=','.join(part), pageToken=response['nextPageToken']).execute()
-            
+
+            response = yt.videos().list(
+                part='snippet,contentDetails',
+                id=','.join(part),
+                pageToken=response['nextPageToken']
+                ).execute()
+                                
     return render_template("view.html", playlist=playlist, name=name, time=time)
 
 
+# delete spotify playlist route
 @app.route('/deletesp')
 def deletesp():   
     sp = get_spotify_user()  
@@ -187,6 +246,7 @@ def deletesp():
     return redirect('/playlists_spotify')
 
 
+# delete youtube playlist route
 @app.route('/deleteyt')
 def deleteyt():
     yt = get_yt_user()
@@ -201,6 +261,7 @@ def deleteyt():
     return redirect('/playlists_youtube')
 
 
+# disconnect from youtube/spotify route
 @app.route('/disconnect', methods=['POST', 'GET'])
 def disconnect():
     dis = request.form.get('disconnect')
@@ -213,6 +274,7 @@ def disconnect():
     return redirect('/')
 
 
+# converting spotify -> youtube playlist route
 @app.route('/convert', methods=['GET', 'POST'])
 def convert():
     check = check_yt()
@@ -235,8 +297,12 @@ def convert():
 
         for query in queries:
             rep = yt.search().list(part='snippet,id', q=query, type='video', maxResults=1).execute()['items'][0]
-            video = {'id': rep['id']['videoId'], 'name': rep['snippet']['title'],
-                    'channel': rep['snippet']['channelTitle'], 'url': f"https://youtu.be/{rep['id']['videoId']}"}
+            video = {
+                'id': rep['id']['videoId'],
+                'name': rep['snippet']['title'],
+                'channel': rep['snippet']['channelTitle'],
+                'url': f"https://youtu.be/{rep['id']['videoId']}"
+                }
             playlist.append(video)
 
         return render_template('convert.html', playlist=playlist, name=name)

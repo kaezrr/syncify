@@ -3,8 +3,8 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from flask import session, redirect, flash
 
-# Write (your_website)/redirectyoutube in redirect_uri
-
+# write (your_website)/redirectyoutube in redirect_uri
+# creates an oauth flow based on the given api credentials
 def youtube_oauth():
     flow = InstalledAppFlow.from_client_secrets_file('client_secrets.json',
                                                     redirect_uri='http://127.0.0.1:5000/redirectyoutube',
@@ -13,6 +13,8 @@ def youtube_oauth():
                                                         'https://www.googleapis.com/auth/youtube.force-ssl'])
     return flow
 
+# to be called before every function that requires youtube authorization
+# check if user is logged into youtube and/or their credentials are valid.
 def check_yt():
     credentials = session.get('yt_token_info', None)
 
@@ -25,6 +27,7 @@ def check_yt():
         
     session['yt_token_info'] = credentials
 
+# return an api object based on current logged in user, that can be used to make api calls
 def get_yt_user():
     return build('youtube', 'v3', credentials=session['yt_token_info'], cache_discovery=False)
 

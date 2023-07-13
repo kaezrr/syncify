@@ -32,7 +32,7 @@ The following libraries were utilized in the development of Syncify:
 - `google-auth` and `google-auth-oauthlib` - OAuth2 usage for connecting user's YouTube account to Syncify.
 - `isodate` - Parsing of YouTube API's `ISO 8601` durations to seconds for proper display of video durations in playlists.
 
-All the required libraries to run the application are listed in the `requirements.txt` file.
+All the libraries required to run the application are listed in the `requirements.txt` file.
 
 #### Tech stack used:
 
@@ -55,7 +55,7 @@ To run the application on your own, follow these steps (assuming you are using a
 - In the same directory, run `pip install -r requirements.txt` to install all the necessary libraries.
 - **Obtain your API credentials from YouTube and Spotify**:
     - Refer to the [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api) to obtain your `CLIENT_ID` and `CLIENT_SECRET`. Create a `.env` file in your app directory and add two variables, `SPOTIFY_ID` and `SPOTIFY_SECRET`, containing your respective credentials.
-    - Follow the [YouTube Data API v3 Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en) to create an OAuth2.0 Client. Download the resulting `.json` file, rename it to `client_secrets.json`, and place it in your app directory.
+    - Refer to the [YouTube Data API v3 Documentation](https://developers.google.com/youtube/v3/getting-started?hl=en) to create an OAuth2.0 Client. Download the resulting `.json` file, rename it to `client_secrets.json`, and place it in your app directory.
 - Ensure that you add proper Redirect URIs to both Spotify and YouTube APIs; otherwise, a `Redirect_URI_Mismatch` error will occur during user authentication.
 - Until your API Client is fully verified by Spotify/Google, OAuth2 authentication to user accounts will only be available to 'testers' added by you in the Developer dashboards.
 
